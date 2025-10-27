@@ -4,3 +4,9 @@ boonbooth:
   scene:
     width: 1280
     height: 720
+  webcam:
+    size: 0.60
+  text:
+    font: "/TheFrightHouseDEMO.otf"
+    size: 160
+    value: BoonBooth
