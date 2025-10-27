@@ -16,6 +16,7 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.MatOfByte;
 import javafx.embed.swing.SwingFXUtils;
+import org.opencv.videoio.Videoio;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -30,7 +31,7 @@ public class CameraStreamApp extends Application {
     public void start(Stage stage) {
         //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-        OpenCV.loadShared();
+            OpenCV.loadShared();
         imageView = new ImageView();
         imageView.setFitWidth(640);
         imageView.setFitHeight(480);
@@ -52,6 +53,11 @@ public class CameraStreamApp extends Application {
 
     private void startCamera() {
         capture = new VideoCapture(0); // 0 = webcam par défaut
+
+        capture.set(Videoio.CAP_PROP_FRAME_WIDTH, 1280);
+        capture.set(Videoio.CAP_PROP_FRAME_HEIGHT, 720);
+
+
         if (!capture.isOpened()) {
             System.err.println("Impossible d'ouvrir la caméra !");
             return;

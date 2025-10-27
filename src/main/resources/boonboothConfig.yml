@@ -1,0 +1,6 @@
+boonbooth:
+  title: BoonBooth Loves you !
+  background: "src/main/resources/fond_neutre.mp4"
+  scene:
+    width: 1280
+    height: 720
