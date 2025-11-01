@@ -1,24 +1,21 @@
 package org.boonbooth;
 
+import javafx.animation.FadeTransition;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.effect.DropShadow;
-import javafx.scene.effect.Glow;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import nu.pattern.OpenCV;
 import org.boonbooth.configuration.Config;
+import org.boonbooth.utils.JavaFxHelper;
 import org.boonbooth.video.VideoController;
 import org.boonbooth.webcam.CameraController;
-
-import java.io.InputStream;
 
 public class BoonBoothApp extends Application {
 
@@ -31,26 +28,16 @@ public class BoonBoothApp extends Application {
         OpenCV.loadLocally();
 
         // ImageView fond vidéo
-        ImageView videoView = getBackgroundView();
+        ImageView videoView = JavaFxHelper.getBackgroundView();
 
         // ImageView webcam
-        ImageView cameraView = getWebCamView();
+        ImageView cameraView = JavaFxHelper.getWebCamView();
+        cameraView.setOpacity(0);
 
         // Texte overlay
-        Text overlay = getTextOverlay();
+        Text overlay = JavaFxHelper.getTextOverlay();
 
-        StackPane root = new StackPane(videoView, cameraView, overlay);
-        Scene scene = new Scene(root, Config.sceneWidth, Config.sceneHeight);
-
-        scene.setOnKeyPressed(event -> {
-            switch (event.getCode()) {
-                case ESCAPE -> {
-                    Platform.exit();
-                    System.exit(0);
-                }
-                default -> System.out.println("Autre touche pressée: " + event.getCode());
-            }
-        });
+        Scene scene = getScene(videoView, cameraView, overlay);
 
         // set webcam pane
         StackPane.setAlignment(cameraView, Pos.TOP_RIGHT);
@@ -72,48 +59,36 @@ public class BoonBoothApp extends Application {
         stage.setOnCloseRequest(e -> stopAll());
     }
 
+    private static Scene getScene(ImageView videoView, ImageView cameraView, Text overlay) {
+        StackPane root = new StackPane(videoView, cameraView, overlay);
+        Scene scene = new Scene(root, Config.sceneWidth, Config.sceneHeight);
+
+        FadeTransition fade = new FadeTransition(Duration.seconds(2), cameraView);
+        fade.setFromValue(0);   // Départ: transparent
+        fade.setToValue(1);     // Arrivée: opaque
+
+        scene.setOnKeyPressed(event -> {
+            switch (event.getCode()) {
+                case ESCAPE -> {
+                    Platform.exit();
+                    System.exit(0);
+                }
+                case SPACE -> { fade.stop();  fade.playFromStart(); }
+                default -> System.out.println("Autre touche pressée: " + event.getCode());
+            }
+        });
+        return scene;
+    }
+
     private void stopAll() {
         if (videoController != null) videoController.stop();
         if (cameraController != null) cameraController.stop();
+        Platform.exit();
+        System.exit(0);
     }
 
     public static void main(String[] args) {
         launch();
-    }
-
-    private ImageView getBackgroundView(){
-        ImageView videoView = new ImageView();
-        videoView.setPreserveRatio(true);
-        videoView.setFitWidth(Config.sceneWidth);
-        videoView.setFitHeight(Config.sceneHeight);
-        return videoView;
-    }
-
-    private ImageView getWebCamView(){
-        ImageView cameraView = new ImageView();
-        cameraView.setPreserveRatio(true);
-        cameraView.setFitWidth(Config.sceneWidth * Config.webcamSize);
-        cameraView.setFitHeight(Config.sceneHeight * Config.webcamSize);
-        return cameraView;
-    }
-
-    private Text getTextOverlay(){
-        Text overlay = new Text(Config.textValue);
-        InputStream fontStream = getClass().getResourceAsStream(Config.textFont);
-        Font customFont = Font.loadFont(fontStream, Config.textSize);
-        overlay.setFont(customFont);
-        overlay.setFill(Color.WHITE);
-
-        // Glow + DropShadow
-        Glow glow = new Glow(1.5);
-        DropShadow ds = new DropShadow();
-        ds.setOffsetX(2);
-        ds.setOffsetY(2);
-        ds.setColor(Color.BLACK);
-        overlay.setEffect(glow);
-        glow.setInput(ds);
-
-        return overlay;
     }
 }
 

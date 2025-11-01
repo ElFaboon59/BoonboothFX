@@ -5,7 +5,7 @@ boonbooth:
     width: 1280
     height: 720
   webcam:
-    size: 0.60
+    size: 0.70
   text:
     font: "/TheFrightHouseDEMO.otf"
     size: 160
